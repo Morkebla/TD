@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+
 [ExecuteAlways]
+[RequireComponent(typeof(TextMeshPro))]
 public class CoordinateLabeler : MonoBehaviour
 {
     [SerializeField] Color defaultColor = Color.white; // color of buildable tiles in the game
@@ -27,9 +29,10 @@ public class CoordinateLabeler : MonoBehaviour
         {
             UpdateObjectName();
             DisplayCoordinates();
+            label.enabled = false;
         }
         ToggleLabels();
-        ColorCoordinates();
+        SetLabelColor();
     }
 
     void ToggleLabels()
@@ -40,7 +43,7 @@ public class CoordinateLabeler : MonoBehaviour
         }
     }
 
-    void ColorCoordinates()
+    void SetLabelColor()
     {
         if (waypoint.Isplaceable == true)
         {

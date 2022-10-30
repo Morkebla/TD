@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WayPoint : MonoBehaviour
 {
-    [SerializeField] GameObject towerPrefab;
+    [SerializeField] Tower towerPrefab;
 
     [SerializeField] bool isPlaceable;
     public bool Isplaceable{get{ return isPlaceable; } } 
@@ -13,8 +13,8 @@ public class WayPoint : MonoBehaviour
     {
         if (isPlaceable)
         {
-            Instantiate (towerPrefab,transform.position,Quaternion.identity); // if the Waypoint /(slash)/ tile is placeable we create a tower at its position.
-            isPlaceable = false; // makes the position unplaceable.
+            bool isPlaced = towerPrefab.CreateTower(towerPrefab, transform.position);
+            isPlaceable = !isPlaced; // makes the position unplaceable.
         }
     }
 }

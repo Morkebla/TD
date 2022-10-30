@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+[RequireComponent(typeof(Enemy))]
 
 public class EnemyMover : MonoBehaviour
 {
     List<WayPoint> path = new List<WayPoint>();  // here we create a new list for our path that the enemy will be walking.
     [SerializeField] [Range(0f,5f)] float moveSpeed = 1f; // set a movespeed for the enemy between 1 and 5 so it can not go negative.
+    Enemy enemy;
     
     void OnEnable()
     {
@@ -14,21 +16,38 @@ public class EnemyMover : MonoBehaviour
         StartCoroutine(FollowPath());
     }
 
+    void Start()
+    {
+        enemy = GetComponent<Enemy>();
+    }
+
     void FindPath()
     {
         path.Clear();  
 
-        GameObject[] waypoints = GameObject.FindGameObjectsWithTag("Path"); // here we find the waypoints that we have tagget as path.
+        GameObject parent = GameObject.FindGameObjectWithTag("Path"); // here we find the waypoints that we have tagget as path.
 
-        foreach(GameObject waypoint in waypoints)
+        foreach(Transform child  in parent.transform)
         {
-            path.Add(waypoint.GetComponent<WayPoint>()); // here we loop through all of the path tiles and add them to our enemy's movement path.
+            WayPoint waypoint = child.GetComponent<WayPoint>();
+
+            if (waypoint != null)
+            {
+                path.Add(waypoint);
+            }
+            
         }
     }
 
     void ReturnToStart()
     {
         transform.position = path[0].transform.position; // here we tell our enemy where the first tile is so it can head that way.
+    }
+
+    void FinishPath()
+    {
+        enemy.StealGold();
+        gameObject.SetActive(false); // once we reach the end of the path we put our enemy in the ObjectPool.
     }
 
     IEnumerator FollowPath()
@@ -52,7 +71,7 @@ public class EnemyMover : MonoBehaviour
                
         }
 
-        gameObject.SetActive(false); // once we reach the end of the path we put our enemy in the ObjectPool.
+        FinishPath();
     }
 
 }
