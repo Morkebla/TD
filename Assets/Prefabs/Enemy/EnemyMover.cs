@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyMover : MonoBehaviour
 {
-    List<WayPoint> path = new List<WayPoint>();  // here we create a new list for our path that the enemy will be walking.
+    List<Tile> path = new List<Tile>();  // here we create a new list for our path that the enemy will be walking.
     [SerializeField] [Range(0f,5f)] float moveSpeed = 1f; // set a movespeed for the enemy between 1 and 5 so it can not go negative.
     Enemy enemy;
     
@@ -29,7 +29,7 @@ public class EnemyMover : MonoBehaviour
 
         foreach(Transform child  in parent.transform)
         {
-            WayPoint waypoint = child.GetComponent<WayPoint>();
+            Tile waypoint = child.GetComponent<Tile>();
 
             if (waypoint != null)
             {
@@ -52,7 +52,7 @@ public class EnemyMover : MonoBehaviour
 
     IEnumerator FollowPath()
     {
-        foreach(WayPoint wayPoint in path)
+        foreach(Tile wayPoint in path)
         {
             Vector3 startPosition = transform.position; // here we set the current position in a variable.
             Vector3 endPointPosition = wayPoint.transform.position; // and the position we want to reach next into a variable.

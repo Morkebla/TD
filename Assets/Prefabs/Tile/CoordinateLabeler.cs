@@ -27,11 +27,12 @@ public class CoordinateLabeler : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(UnityEditor.EditorSnapSettings.move);
         if (!Application.isPlaying)
         {
             UpdateObjectName();
             DisplayCoordinates();
-            label.enabled = false;
+            label.enabled = true;
         }
         ToggleLabels();
         SetLabelColor();
@@ -75,9 +76,11 @@ public class CoordinateLabeler : MonoBehaviour
 
     void DisplayCoordinates()
     {
-        coordinates.x = Mathf.RoundToInt(transform.parent.position.x / UnityEditor.EditorSnapSettings.move.x); // here we turn our coordinates to Integer from a float and divide it by the SNap settings we set in the Editor.
-        coordinates.y = Mathf.RoundToInt(transform.parent.position.z / UnityEditor.EditorSnapSettings.move.z);
-        label.text = coordinates.x + "," + coordinates.y; // and here we display the coordinates we have set onto the textmeshpro.
+        if (gridManager == null) { return; }
+
+        coordinates.x = Mathf.RoundToInt(transform.parent.position.x / gridManager.unityWorldGrid ); // here we turn our coordinates to Integer from a float and divide it by the SNap settings we set in the Editor.
+        coordinates.y = Mathf.RoundToInt(transform.parent.position.z / gridManager.unityWorldGrid);
+        label.text = coordinates.x + "," + coordinates.y ; // and here we display the coordinates we have set onto the textmeshpro.
     }
 
     void UpdateObjectName()
