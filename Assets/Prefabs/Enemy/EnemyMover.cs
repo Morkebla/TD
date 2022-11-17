@@ -5,43 +5,47 @@ using UnityEngine;
 
 public class EnemyMover : MonoBehaviour
 {
-    List<Tile> path = new List<Tile>();  // here we create a new list for our path that the enemy will be walking.
-    [SerializeField] [Range(0f,5f)] float moveSpeed = 1f; // set a movespeed for the enemy between 1 and 5 so it can not go negative.
+    [SerializeField][Range(0f, 5f)] float moveSpeed = 1f; // set a movespeed for the enemy between 1 and 5 so it can not go negative.
+    List<Node> path = new List<Node>();
     Enemy enemy;
-    
+    GridManager gridManager;
+    PathFinder PathFinder;
+
+
     void OnEnable()
     {
-        FindPath();
         ReturnToStart();
-        StartCoroutine(FollowPath());
+        RecalculatePath(true);
     }
 
-    void Start()
+    void Awake()
     {
         enemy = GetComponent<Enemy>();
+        gridManager = FindObjectOfType<GridManager>();
+        PathFinder = FindObjectOfType<PathFinder>();
     }
 
-    void FindPath()
+    void RecalculatePath(bool resetPath)
     {
-        path.Clear();  
+        Vector2Int coordinates = new Vector2Int();
 
-        GameObject parent = GameObject.FindGameObjectWithTag("Path"); // here we find the waypoints that we have tagget as path.
-
-        foreach(Transform child  in parent.transform)
+        if (resetPath)
         {
-            Tile waypoint = child.GetComponent<Tile>();
-
-            if (waypoint != null)
-            {
-                path.Add(waypoint);
-            }
-            
+            coordinates = PathFinder.StartCoordinates;
+        } else
+        {
+            coordinates = gridManager.GetCoordinatesFromPosition(transform.position);
         }
+
+        StopAllCoroutines();
+        path.Clear();
+        path = PathFinder.GetNewPath(coordinates);
+        StartCoroutine(FollowPath());
     }
 
     void ReturnToStart()
     {
-        transform.position = path[0].transform.position; // here we tell our enemy where the first tile is so it can head that way.
+        transform.position = gridManager.GetPositionFromCoordinates(PathFinder.StartCoordinates); // here we tell our enemy where the first tile is so it can head that way.
     }
 
     void FinishPath()
@@ -49,26 +53,25 @@ public class EnemyMover : MonoBehaviour
         enemy.StealGold();
         gameObject.SetActive(false); // once we reach the end of the path we put our enemy in the ObjectPool.
     }
-
     IEnumerator FollowPath()
     {
-        foreach(Tile wayPoint in path)
+        for (int i = 1; i < path.Count; i++)
         {
             Vector3 startPosition = transform.position; // here we set the current position in a variable.
-            Vector3 endPointPosition = wayPoint.transform.position; // and the position we want to reach next into a variable.
+            Vector3 endPointPosition = gridManager.GetPositionFromCoordinates(path[i].coordinates); // and the position we want to reach next into a variable.
 
-            float travelPercent = 0; 
+            float travelPercent = 0;
 
             transform.LookAt(endPointPosition); // and we tell our enemy to always be looking at the position it is traveling to.
 
             while (travelPercent < 1)
             {
-                travelPercent +=Time.deltaTime * moveSpeed; // simple equation to set our enemy movement.
+                travelPercent += Time.deltaTime * moveSpeed; // simple equation to set our enemy movement.
                 transform.position = Vector3.Lerp(startPosition, endPointPosition, travelPercent); // and here we lerp the movement to make it nice and smooth.
 
                 yield return new WaitForEndOfFrame(); // here we wait for the end of the frame before we start FollowPath Process again.
             }
-               
+
         }
 
         FinishPath();

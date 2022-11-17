@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class PathFinder : MonoBehaviour
 {
-    [SerializeField] Vector2Int startCoordinates; // set start coordinates
-    [SerializeField] Vector2Int destinationCoordinates; // set end coordinates
+    [SerializeField] Vector2Int _startCoordinates; // set start coordinates
+    public Vector2Int StartCoordinates { get { return _startCoordinates; } }
+
+    [SerializeField] Vector2Int _destinationCoordinates; // set end coordinates
+    public Vector2Int DestinationCoordinates { get { return _destinationCoordinates; } }
 
     Node startNode;
     Node destinationNode;
@@ -24,20 +27,26 @@ public class PathFinder : MonoBehaviour
         if (gridManager != null)
         {
             grid = gridManager.Grid;
+            startNode = grid[StartCoordinates];
+            destinationNode = grid[_destinationCoordinates];
+            
         }
     }
 
     void Start()
     {
-        startNode = gridManager.Grid[startCoordinates];
-        destinationNode = gridManager.Grid[destinationCoordinates];
         GetNewPath();
     }
 
     public List<Node> GetNewPath()
     {
+       return GetNewPath(StartCoordinates);
+    }
+
+    public List<Node> GetNewPath(Vector2Int coordinates)
+    {
         gridManager.ResetNodes();
-        BreadthFirstSearch();
+        BreadthFirstSearch(coordinates);
         return BuildPath();
     }
 
@@ -66,15 +75,17 @@ public class PathFinder : MonoBehaviour
         }
     }
 
-    void BreadthFirstSearch()
+    void BreadthFirstSearch(Vector2Int coordinates)
     {
+        startNode.isWalkable = true;
+        destinationNode.isWalkable = true;
         frontier.Clear();
         reached.Clear();
 
         bool isRuning = true;
 
-        frontier.Enqueue(startNode);
-        reached.Add(startCoordinates,startNode);
+        frontier.Enqueue(grid[coordinates]);
+        reached.Add(coordinates,grid[coordinates]);
 
         while (frontier.Count > 0 && isRuning)
         {
@@ -82,7 +93,7 @@ public class PathFinder : MonoBehaviour
             currentSearchNode.isExplored = true;
             ExploreNeighbours();
 
-            if (currentSearchNode.coordinates == destinationCoordinates)
+            if (currentSearchNode.coordinates == _destinationCoordinates)
             {
                 isRuning = false;
             }
@@ -126,6 +137,11 @@ public class PathFinder : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void NotifyReceivers()
+    {
+        BroadcastMessage("RecalculatePath", false, SendMessageOptions.DontRequireReceiver);
     }
 
 }

@@ -58,7 +58,7 @@ public class GridManager : MonoBehaviour
     {
         Vector3 position = new Vector3();
         position.x = coordinates.x * unityWorldGrid;
-        position.y = coordinates.y * unityWorldGrid;
+        position.z = coordinates.y * unityWorldGrid;
 
         return position;
     }
