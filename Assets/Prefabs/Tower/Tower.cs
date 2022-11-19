@@ -36,7 +36,7 @@ public class Tower : MonoBehaviour
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);
-            foreach(Transform grandchild in child)
+            foreach (Transform grandchild in child)
             {
                 grandchild.gameObject.SetActive(false);
             }
